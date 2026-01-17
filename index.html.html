@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, My Love</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #ff85a2;
+            --soft-bg: #fff0f3;
+            --glass: rgba(255, 255, 255, 0.85);
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--soft-bg);
+            overflow: hidden; color: #444;
+        }
+
+        /* --- PERSISTENT BACKGROUND --- */
+        #bg-hearts {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
+        }
+        .bg-heart {
+            position: absolute; color: rgba(255, 77, 109, 0.15);
+            animation: floatUp var(--d) linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- PROGRESS BAR --- */
+        #progress-container {
+            position: fixed; top: 20px; width: 80%; left: 10%;
+            height: 8px; background: #ddd; border-radius: 10px; z-index: 100;
+        }
+        #progress-fill {
+            width: 0%; height: 100%; background: var(--primary);
+            border-radius: 10px; transition: 0.5s;
+        }
+
+        /* --- LAYOUT --- */
+        .screen {
+            position: fixed; inset: 0; display: flex; align-items: center;
+            justify-content: center; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10; padding: 20px;
+        }
+        .hidden { opacity: 0; visibility: hidden; transform: scale(1.1); }
+
+        .card {
+            background: var(--glass); backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 25px; border: 1px solid white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px; /* MEDIUM CARD WIDTH */
+            width: 100%; text-align: center;
+        }
+
+        h1 { font-family: 'Dancing Script', cursive; color: var(--primary); font-size: 2.5rem; }
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 30px; border-radius: 50px; cursor: pointer;
+            font-weight: 600; transition: 0.3s; margin-top: 15px;
+        }
+        .btn:hover { background: var(--secondary); transform: translateY(-3px); }
+
+        /* --- MEDIUM REWARD PHOTO --- */
+        #reward-img {
+            width: 100%; 
+            height: 300px; /* MEDIUM HEIGHT */
+            object-fit: cover; /* Prevents stretching */
+            border-radius: 15px; 
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- GAMES --- */
+        .game-area {
+            width: 100%; height: 250px; background: rgba(255,255,255,0.5);
+            margin: 20px 0; border-radius: 15px; position: relative; overflow: hidden;
+            border: 2px dashed var(--secondary);
+        }
+
+        /* Game 2: Memory */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 20px; }
+        .tile { 
+            height: 80px; background: var(--secondary); border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; color: white; cursor: pointer; 
+        }
+
+        /* Game 3: Spell LOVE */
+        .letter-bubble {
+            position: absolute; width: 50px; height: 50px; background: var(--primary);
+            color: white; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; cursor: pointer;
+            animation: bounce 2s infinite alternate;
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(20px); } }
+
+        /* --- FINAL FLYING PHOTOS (MEDIUM) --- */
+        .fly-photo {
+            position: fixed; 
+            width: 250px;   /* MEDIUM WIDTH */
+            height: 320px;  /* MEDIUM HEIGHT */
+            object-fit: cover; 
+            border: 10px solid white;
+            bottom: -400px; z-index: 1000; 
+            box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+            animation: flyUpwards 7s ease-in forwards;
+        }
+        @keyframes flyUpwards {
+            0% { bottom: -400px; transform: rotate(0deg); }
+            100% { bottom: 120vh; transform: rotate(var(--r)) translateX(var(--x)); }
+        }
+
+        /* --- CAKE --- */
+        .cake-box { font-size: 100px; cursor: pointer; position: relative; }
+        .flame { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 40px; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-hearts"></div>
+    <div id="progress-container"><div id="progress-fill"></div></div>
+
+    <!-- Welcome -->
+    <div id="scr-welcome" class="screen">
+        <div class="card">
+            <h1>Hey Rutvi(B'day girl... 🌸)</h1>
+            <p>I built this little world just for you. Complete the games to unlock your surprises!</p>
+            <button class="btn" onclick="start()">Begin Journey</button>
+        </div>
+    </div>
+
+    <!-- Round 1: Kisses -->
+    <div id="scr-game1" class="screen hidden">
+        <div class="card">
+            <h1>Round 1: Catch 10 Kisses</h1>
+            <p>Click the hearts as they appear!</p>
+            <div class="game-area" id="box1"></div>
+            <p id="stat1">Found: 0 / 10</p>
+        </div>
+    </div>
+
+    <!-- Round 2: Memory -->
+    <div id="scr-game2" class="screen hidden">
+        <div class="card">
+            <h1>Round 2: Memory Lane</h1>
+            <p>Match the pairs of hearts!</p>
+            <div class="game-area grid" id="box2">
+                <div class="tile" onclick="flip(this, 'A')">?</div>
+                <div class="tile" onclick="flip(this, 'B')">?</div>
+                <div class="tile" onclick="flip(this, 'A')">?</div>
+                <div class="tile" onclick="flip(this, 'B')">?</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Round 3: Spell LOVE -->
+    <div id="scr-game3" class="screen hidden">
+        <div class="card">
+            <h1>Round 3: Catch the Letters</h1>
+            <p>Spell <b>LOVE</b> by clicking the bubbles in order!</p>
+            <h2 id="spell-target" style="letter-spacing: 5px; color: var(--primary);">_ _ _ _</h2>
+            <div class="game-area" id="box3"></div>
+        </div>
+    </div>
+
+    <!-- Round 4: The Heart Follower -->
+    <div id="scr-game4" class="screen hidden">
+        <div class="card">
+            <h1>Final Round: Don't Let Go!</h1>
+            <p>Click and hold the heart for 3 seconds!</p>
+            <div class="game-area" id="box4">
+                <div id="hold-heart" style="font-size: 60px; position:absolute; left:40%; top:30%; cursor:pointer;">❤️</div>
+            </div>
+            <p id="hold-timer">Hold it...</p>
+        </div>
+    </div>
+
+    <!-- Reward Overlay -->
+    <div id="scr-reward" class="screen hidden" style="z-index: 200;">
+        <div class="card">
+            <h1 id="reward-title">Memory Unlocked</h1>
+            <!-- IMAGE IS NOW MEDIUM SIZE -->
+            <img id="reward-img" src="" alt="Birthday Memory">
+            <p id="reward-note" style="font-style:italic; color:var(--primary);"></p>
+            <button class="btn" onclick="nextRound()">Next Round</button>
+        </div>
+    </div>
+
+    <!-- Cake -->
+    <div id="scr-cake" class="screen hidden">
+        <div class="card">
+            <h1>Make a Wish!</h1>
+            <div class="cake-box" onclick="blowOut()">
+                <div id="flame" class="flame">🔥</div>
+                🎂
+            </div>
+            <p>Click the flame to blow it out</p>
+            <div id="final-note" class="hidden">
+                <p style="font-family:'Dancing Script'; font-size:1.5rem; border-top:1px solid #ddd; padding-top:15px;">
+                    I love you more than all the code in the world.Happy Birthday, my love Rutvi 🎂💖 Even though miles separate us 🌍💔, my heart is always with you Babsss 🤍. I miss you every day 😔, but my love only grows stronger 💞. Stay happy, safe, and smiling 😊. Counting days until I can hold you again 🤗✨ Happy Birthday darling!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let round = 1;
+
+        // REPLACE THESE WITH YOUR OWN PHOTO FILENAMES OR LINKS
+        const photos = [
+            "p1.jpeg", 
+            "p2.jpeg", 
+            "p3.jpeg", 
+            "p4.jpeg", 
+            "p5.jpeg",
+	     "p6.jpeg",
+	     "p7.jpeg",
+	     "p8.jpeg",
+		"p9.jpeg",
+		"p10.jpeg",
+	     
+        ];
+
+        const notes = [
+            "Every day with you is a new favorite memory.",
+            "You are the best partner I could ever ask for.",
+            "I love you too! To the moon and back.",
+            "You're my forever and always."
+        ];
+
+        // 1. Background Hearts
+        function spawnHearts() {
+            const container = document.getElementById('bg-hearts');
+            for(let i=0; i<20; i++) {
+                const h = document.createElement('div');
+                h.className = 'bg-heart';
+                h.innerHTML = '❤️';
+                h.style.left = Math.random() * 100 + 'vw';
+                h.style.fontSize = (10 + Math.random() * 20) + 'px';
+                h.style.setProperty('--d', (5 + Math.random() * 5) + 's');
+                h.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(h);
+            }
+        }
+        spawnHearts();
+
+        function start() {
+            document.getElementById('scr-welcome').classList.add('hidden');
+            loadRound();
+        }
+
+        function loadRound() {
+            document.getElementById('progress-fill').style.width = (round * 25) + '%';
+            document.getElementById('scr-game' + round).classList.remove('hidden');
+            if(round === 1) setupG1();
+            if(round === 3) setupG3();
+            if(round === 4) setupG4();
+        }
+
+        function showReward() {
+            document.getElementById('reward-img').src = photos[round-1];
+            document.getElementById('reward-note').innerText = notes[round-1];
+            document.getElementById('scr-reward').classList.remove('hidden');
+        }
+
+        function nextRound() {
+            document.getElementById('scr-reward').classList.add('hidden');
+            document.getElementById('scr-game' + round).classList.add('hidden');
+            if(round < 4) {
+                round++;
+                loadRound();
+            } else {
+                launchPhotos();
+            }
+        }
+
+        // --- ROUND 1: CATCH KISSES ---
+        function setupG1() {
+            let count = 0;
+            const box = document.getElementById('box1');
+            const interval = setInterval(() => {
+                if(count >= 10) { clearInterval(interval); return; }
+                const k = document.createElement('div');
+                k.innerHTML = '💋';
+                k.style.cssText = `position:absolute; left:${Math.random()*85}%; top:${Math.random()*85}%; font-size:30px; cursor:pointer;`;
+                k.onclick = () => {
+                    k.remove();
+                    count++;
+                    document.getElementById('stat1').innerText = `Found: ${count} / 10`;
+                    if(count === 10) showReward();
+                };
+                box.appendChild(k);
+                setTimeout(() => k.remove(), 1500);
+            }, 800);
+        }
+
+        // --- ROUND 2: MEMORY ---
+        let flipped = [];
+        function flip(el, val) {
+            if(flipped.length < 2 && !el.classList.contains('done')) {
+                el.innerText = (val === 'A' ? '❤️' : '💖');
+                flipped.push({el, val});
+                if(flipped.length === 2) {
+                    if(flipped[0].val === flipped[1].val) {
+                        flipped.forEach(f => f.el.classList.add('done'));
+                        flipped = [];
+                        if(document.querySelectorAll('.done').length === 4) showReward();
+                    } else {
+                        setTimeout(() => {
+                            flipped.forEach(f => f.el.innerText = '?');
+                            flipped = [];
+                        }, 500);
+                    }
+                }
+            }
+        }
+
+        // --- ROUND 3: SPELL LOVE ---
+        function setupG3() {
+            const target = "LOVE";
+            let index = 0;
+            const box = document.getElementById('box3');
+            "EVOL".split('').forEach(char => {
+                const b = document.createElement('div');
+                b.className = 'letter-bubble';
+                b.innerText = char;
+                b.style.left = Math.random() * 80 + '%';
+                b.style.top = Math.random() * 60 + '%';
+                b.onclick = () => {
+                    if(char === target[index]) {
+                        index++;
+                        document.getElementById('spell-target').innerText = target.substring(0, index) + " _".repeat(4-index);
+                        b.style.background = "#4CAF50";
+                        if(index === 4) setTimeout(showReward, 500);
+                    }
+                };
+                box.appendChild(b);
+            });
+        }
+
+        // --- ROUND 4: HOLD ---
+        function setupG4() {
+            const h = document.getElementById('hold-heart');
+            let timer;
+            let time = 0;
+            const startHold = () => {
+                timer = setInterval(() => {
+                    time++;
+                    document.getElementById('hold-timer').innerText = `Holding: ${time}s`;
+                    if(time >= 3) {
+                        clearInterval(timer);
+                        showReward();
+                    }
+                }, 1000);
+            };
+            const stopHold = () => {
+                clearInterval(timer);
+                time = 0;
+                document.getElementById('hold-timer').innerText = "Keep holding!";
+            };
+            h.onmousedown = startHold; h.onmouseup = stopHold;
+            h.ontouchstart = startHold; h.ontouchend = stopHold;
+        }
+
+        // --- FINAL FLYING PHOTOS ---
+        function launchPhotos() {
+            photos.forEach((src, i) => {
+                setTimeout(() => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.className = 'fly-photo';
+                    img.style.left = (10 + Math.random() * 60) + '%';
+                    img.style.setProperty('--r', (Math.random() * 40 - 20) + 'deg');
+                    img.style.setProperty('--x', (Math.random() * 100 - 50) + 'px');
+                    document.body.appendChild(img);
+                }, i * 2000);
+            });
+            setTimeout(() => {
+                document.getElementById('scr-cake').classList.remove('hidden');
+            }, 12000);
+        }
+
+        function blowOut() {
+            document.getElementById('flame').style.display = 'none';
+            document.getElementById('final-note').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
